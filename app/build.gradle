@@ -2,6 +2,9 @@ plugins {
     id 'com.android.application'
 }
 
+def localProperties = new Properties()
+localProperties.load(new FileInputStream(rootProject.file("local.properties")))
+
 android {
     compileSdk 31
 
@@ -16,9 +19,18 @@ android {
     }
 
     buildTypes {
+        debug {
+            resValue "string", "facebook_app_id", localProperties['facebook_app_id']
+            resValue "string", "facebook_client_token", localProperties['facebook_client_token']
+            resValue "string", "fb_login_protocol_scheme", localProperties['fb_login_protocol_scheme']
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            resValue "string", "facebook_app_id", localProperties['facebook_app_id']
+            resValue "string", "facebook_client_token", localProperties['facebook_client_token']
+            resValue "string", "fb_login_protocol_scheme", localProperties['fb_login_protocol_scheme']
         }
     }
     compileOptions {
