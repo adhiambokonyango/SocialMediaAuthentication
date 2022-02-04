@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">SocialMediaAuthentication</string>
+
+<!--    social media authentication-->
+    <string name="facebook_app_id">503280434492915</string>
+<!--    674332593575315-->
+    <string name="facebook_client_token">5ab411d00d1906336525bbed2cb722e2</string>
+</resources>
