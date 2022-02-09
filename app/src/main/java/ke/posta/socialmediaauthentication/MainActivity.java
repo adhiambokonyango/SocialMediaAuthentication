@@ -9,8 +9,16 @@ import android.util.Log;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.FacebookRequestError;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.Profile;
+import com.facebook.internal.ImageRequest;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -20,13 +28,16 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "TAG";
     CallbackManager callbackManager = CallbackManager.Factory.create();
     LoginButton loginButton;
+
+    FacebookRequestError facebookRequestError;
+
     private static final String EMAIL = "email";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         loginButton = (LoginButton) findViewById(R.id.login_button);
-        loginButton.setReadPermissions(Arrays.asList(EMAIL));
+        loginButton.setReadPermissions(Arrays.asList("public_profile", "email", "user_birthday", "user_friends","user_gender"));
         // If you are using in a fragment, call loginButton.setFragment(this);
 
         // Callback registration
@@ -38,9 +49,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "onSuccess: "+loginResult.toString());
                 Log.d(TAG, "onSuccess: "+loginResult.getAccessToken().getUserId());
                 Log.d(TAG, "onSuccess: "+loginResult.getAccessToken().getPermissions()); // [openid, public_profile, email]
-                Set list = loginResult.getAccessToken().getPermissions();
-                Object[] arrays = list.toArray();
-                Log.d(TAG, "onSuccess: "+arrays[0].toString());
 
 
                 /**
@@ -51,6 +59,32 @@ public class MainActivity extends AppCompatActivity {
                  * recentlyGrantedPermissions=[openid, public_profile, email],
                  * recentlyDeniedPermissions=[])
                  * **/
+
+                Log.d(TAG, "onSuccess: token"+loginResult.getAccessToken().getToken());
+                GraphRequest request = GraphRequest.newMeRequest(
+                        loginResult.getAccessToken(),
+                        new GraphRequest.GraphJSONObjectCallback() {
+
+                            @Override
+                            public void onCompleted(
+                                    JSONObject object,
+                                    GraphResponse response) {
+                                Log.d(TAG, "onCompleted: "+response.toString());
+                                Log.d(TAG, "onCompleted: "+object.toString());
+                                // Application code
+                                try {
+                                    Log.d(TAG, "onCompleted: "+object.get("user_gender"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                Log.d(TAG, "onCompleted: "+ response.getError());
+                                Log.d(TAG, "onCompleted: "+response.getJSONArray());
+                            }
+                        });
+                Bundle parameters = new Bundle();
+                parameters.putString("fields", "id,name,link");
+                request.setParameters(parameters);
+                request.executeAsync();
 
             }
 
